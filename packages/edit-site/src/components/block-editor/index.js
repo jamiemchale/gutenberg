@@ -7,8 +7,12 @@ import classnames from 'classnames';
  * WordPress dependencies
  */
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useMemo, useRef } from '@wordpress/element';
-import { useEntityBlockEditor, store as coreStore } from '@wordpress/core-data';
+import { useMemo, useRef, useEffect } from '@wordpress/element';
+import {
+	useEntityBlockEditor,
+	useEntityId,
+	store as coreStore,
+} from '@wordpress/core-data';
 import {
 	BlockList,
 	BlockInspector,
@@ -19,12 +23,14 @@ import {
 	store as blockEditorStore,
 	privateApis as blockEditorPrivateApis,
 } from '@wordpress/block-editor';
+
 import {
 	useMergeRefs,
 	useViewportMatch,
 	useResizeObserver,
 } from '@wordpress/compose';
 import { ReusableBlocksMenuItems } from '@wordpress/reusable-blocks';
+import { createBlock } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -43,13 +49,17 @@ import {
 	usePageContentLockNotifications,
 } from '../page-content-lock';
 
-const { ExperimentalBlockEditorProvider } = unlock( blockEditorPrivateApis );
+const { ExperimentalBlockEditorProvider, useBlockEditingMode } = unlock(
+	blockEditorPrivateApis
+);
 
 const LAYOUT = {
 	type: 'default',
 	// At the root level of the site editor, no alignments should be allowed.
 	alignments: [],
 };
+
+const FOCUSABLE_ENTITIES = [ 'wp_template_part', 'wp_navigation' ];
 
 export default function BlockEditor() {
 	const { setIsInserterOpened } = useDispatch( editSiteStore );
@@ -136,7 +146,7 @@ export default function BlockEditor() {
 		};
 	}, [ storedSettings, blockPatterns, blockPatternCategories ] );
 
-	const [ blocks, onInput, onChange ] = useEntityBlockEditor(
+	const [ blocks, onInput, onChange ] = useGetBlockEditorState(
 		'postType',
 		templateType
 	);
@@ -149,20 +159,32 @@ export default function BlockEditor() {
 		usePageContentLockNotifications(),
 	] );
 	const isMobileViewport = useViewportMatch( 'small', '<' );
-	const { clearSelectedBlock } = useDispatch( blockEditorStore );
+	const { clearSelectedBlock, selectBlock } = useDispatch( blockEditorStore );
 	const [ resizeObserver, sizes ] = useResizeObserver();
 
-	const isTemplatePart = templateType === 'wp_template_part';
+	const isFocusMode = FOCUSABLE_ENTITIES.includes( templateType );
 
 	const hasBlocks = blocks.length !== 0;
 	const enableResizing =
-		isTemplatePart &&
+		isFocusMode &&
 		canvasMode !== 'view' &&
 		// Disable resizing in mobile viewport.
 		! isMobileViewport;
 	const isViewMode = canvasMode === 'view';
+	const isEditMode = canvasMode === 'edit';
 	const showBlockAppender =
-		( isTemplatePart && hasBlocks ) || isViewMode ? false : undefined;
+		( isFocusMode && hasBlocks ) || isViewMode ? false : undefined;
+
+	function SetRootBlockEditingMode( { mode } ) {
+		useBlockEditingMode( mode );
+		return null;
+	}
+
+	useEffect( () => {
+		if ( isEditMode && templateType === 'wp_navigation' ) {
+			selectBlock( blocks[ 0 ]?.clientId );
+		}
+	}, [ blocks, templateType, isEditMode, selectBlock ] );
 
 	return (
 		<ExperimentalBlockEditorProvider
@@ -173,6 +195,13 @@ export default function BlockEditor() {
 			useSubRegistry={ false }
 		>
 			{ hasPageContentLock && <PageContentLock /> }
+
+			<SetRootBlockEditingMode
+				mode={
+					templateType === `wp_navigation` ? 'contentOnly' : 'default'
+				}
+			/>
+
 			<TemplatePartConverter />
 			<SidebarInspectorFill>
 				<BlockInspector />
@@ -187,7 +216,7 @@ export default function BlockEditor() {
 						<BlockTools
 							className={ classnames( 'edit-site-visual-editor', {
 								'is-focus-mode':
-									isTemplatePart || !! editorCanvasView,
+									isFocusMode || !! editorCanvasView,
 								'is-view-mode': isViewMode,
 							} ) }
 							__unstableContentRef={ contentRef }
@@ -225,4 +254,46 @@ export default function BlockEditor() {
 			<ReusableBlocksMenuItems />
 		</ExperimentalBlockEditorProvider>
 	);
+}
+
+/**
+ * Returns the appropriate block editor state for a given entity type.
+ *
+ * Note: Navigation entities require a wrapping Navigation block to provide
+ * them with some basic layout and styling. Therefore we create a "ghost" block
+ * and provide it will a reference to the navigation entity ID being edited.
+ *
+ * In this scenario it is the **block** that handles syncing the entity content
+ * whereas for other entities this is handled by entity block editor.
+ *
+ * @param {string} kind the entity kind
+ * @param {string} type the entity type
+ * @return {[WPBlock[], Function, Function]} The block array and setters.
+ */
+function useGetBlockEditorState( kind, type ) {
+	const noop = () => {};
+
+	const entityId = useEntityId( kind, type );
+
+	const [ entityBlocks, onInput, onChange ] = useEntityBlockEditor(
+		kind,
+		type,
+		{
+			id: entityId,
+		}
+	);
+
+	const wrappedBlocks = useMemo( () => {
+		return [
+			createBlock( 'core/navigation', {
+				ref: entityId,
+			} ),
+		];
+	}, [ entityId ] );
+
+	if ( type === `wp_navigation` ) {
+		return [ wrappedBlocks, noop, noop ];
+	}
+
+	return [ entityBlocks, onInput, onChange ];
 }
