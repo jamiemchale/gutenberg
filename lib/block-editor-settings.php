@@ -77,6 +77,8 @@ function gutenberg_get_block_editor_settings( $settings ) {
 	// Copied from get_block_editor_settings() at wordpress-develop/block-editor.php.
 	$settings['__experimentalFeatures'] = gutenberg_get_global_settings();
 
+	$settings['__experimentalFeatures']['layout']['definitions'] = gutenberg_get_layout_definitions();
+
 	return $settings;
 }
 add_filter( 'block_editor_settings_all', 'gutenberg_get_block_editor_settings', PHP_INT_MAX );
