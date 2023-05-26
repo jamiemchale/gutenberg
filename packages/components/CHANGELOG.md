@@ -6,6 +6,10 @@
 
 -   `DropdownMenu` v2: Tweak styles ([#50967](https://github.com/WordPress/gutenberg/pull/50967)).
 
+### Internal
+
+-   Move some `@types` dependencies to `@wordpress/components` `package.json` so our published types can use them. ([50231](https://github.com/WordPress/gutenberg/pull/50231))
+
 ## 25.0.0 (2023-05-24)
 
 ### Breaking Changes
