@@ -96,7 +96,7 @@ export default function PostTemplateEdit( {
 		} = {},
 		queryContext = [ { page: 1 } ],
 		templateSlug,
-		postsTagName: PostsTagName,
+		postsTagName: PostsTagName = 'ul',
 		displayLayout: { type: layoutType = 'flex', columns = 1 } = {},
 		previewPostType,
 	},
