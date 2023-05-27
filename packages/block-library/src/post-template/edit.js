@@ -237,6 +237,8 @@ export default function PostTemplateEdit( {
 		return <p { ...blockProps }> { __( 'No results found.' ) }</p>;
 	}
 
+	const itemTagName = PostsTagName === 'ul' ? 'li' : 'div';
+
 	// To avoid flicker when switching active block contexts, a preview is rendered
 	// for each block context, but the preview for the active block context is hidden.
 	// This ensures that when it is displayed again, the cached rendering of the
@@ -252,9 +254,7 @@ export default function PostTemplateEdit( {
 						{ blockContext.postId ===
 						( activeBlockContextId ||
 							blockContexts[ 0 ]?.postId ) ? (
-							<PostTemplateInnerBlocks
-								tagName={ PostsTagName === 'ul' ? 'li' : 'div' }
-							/>
+							<PostTemplateInnerBlocks tagName={ itemTagName } />
 						) : null }
 						<MemoizedPostTemplateBlockPreview
 							blocks={ blocks }
@@ -265,7 +265,7 @@ export default function PostTemplateEdit( {
 								( activeBlockContextId ||
 									blockContexts[ 0 ]?.postId )
 							}
-							tagName={ PostsTagName === 'ul' ? 'li' : 'div' }
+							tagName={ itemTagName }
 						/>
 					</BlockContextProvider>
 				) ) }
