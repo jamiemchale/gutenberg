@@ -73,6 +73,7 @@ function render_block_core_post_template( $attributes, $content, $block ) {
 	}
 
 	$wrapper_tag_name   = isset( $block->context['postsTagName'] ) ? $block->context['postsTagName'] : 'ul';
+	$item_tag_name = $wrapper_tag_name === 'ul' ? 'li' : 'div';
 	$wrapper_attributes = get_block_wrapper_attributes( array( 'class' => trim( $classnames ) ) );
 
 	$content = '';
@@ -98,9 +99,9 @@ function render_block_core_post_template( $attributes, $content, $block ) {
 			)
 		)->render( array( 'dynamic' => false ) );
 
-		// Wrap the render inner blocks in a `li` element with the appropriate post classes.
+		// Wrap the render inner blocks in a `li`or `div` element with the appropriate post classes.
 		$post_classes = implode( ' ', get_post_class( 'wp-block-post' ) );
-		$content     .= '<li class="' . esc_attr( $post_classes ) . '">' . $block_content . '</li>';
+		$content     .= '<'.$item_tag_name.' class="' . esc_attr( $post_classes ) . '">' . $block_content . '</'.$item_tag_name.'>';
 	}
 
 	/*
