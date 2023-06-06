@@ -175,16 +175,25 @@ export default function BlockEditor() {
 	const showBlockAppender =
 		( isFocusMode && hasBlocks ) || isViewMode ? false : undefined;
 
-	function SetRootBlockEditingMode( { mode } ) {
-		useBlockEditingMode( mode );
-		return null;
-	}
+	const firstBlockClientId = blocks[ 0 ]?.clientId;
+
+	const isTemplateTypeNavigation = templateType === 'wp_navigation';
+
+	useBlockEditingMode(
+		isTemplateTypeNavigation ? 'contentOnly' : 'default',
+		firstBlockClientId
+	);
 
 	useEffect( () => {
-		if ( isEditMode && templateType === 'wp_navigation' ) {
-			selectBlock( blocks[ 0 ]?.clientId );
+		if ( isEditMode && isTemplateTypeNavigation ) {
+			selectBlock( firstBlockClientId );
 		}
-	}, [ blocks, templateType, isEditMode, selectBlock ] );
+	}, [
+		firstBlockClientId,
+		isEditMode,
+		isTemplateTypeNavigation,
+		selectBlock,
+	] );
 
 	return (
 		<ExperimentalBlockEditorProvider
@@ -195,12 +204,6 @@ export default function BlockEditor() {
 			useSubRegistry={ false }
 		>
 			{ hasPageContentLock && <PageContentLock /> }
-
-			<SetRootBlockEditingMode
-				mode={
-					templateType === `wp_navigation` ? 'contentOnly' : 'default'
-				}
-			/>
 
 			<TemplatePartConverter />
 			<SidebarInspectorFill>
