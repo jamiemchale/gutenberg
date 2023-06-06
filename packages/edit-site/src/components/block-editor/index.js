@@ -244,7 +244,13 @@ export default function BlockEditor() {
 								>
 									{ resizeObserver }
 									<BlockList
-										className="edit-site-block-editor__block-list wp-site-blocks"
+										className={ classnames(
+											'edit-site-block-editor__block-list wp-site-blocks',
+											{
+												'is-navigation-block':
+													isTemplateTypeNavigation,
+											}
+										) }
 										__experimentalLayout={ LAYOUT }
 										renderAppender={ showBlockAppender }
 									/>
