@@ -40,20 +40,13 @@ import { BlockListBlockContext } from '../block-list/block-list-block-context';
  *
  * If called outside of a block context, the mode is applied to all blocks.
  *
- * @param {?BlockEditingMode} mode     The editing mode to apply. If undefined, the
- *                                     current editing mode is not changed.
- * @param {?string}           clientId The block client ID.
+ * @param {?BlockEditingMode} mode The editing mode to apply. If undefined, the
+ *                                 current editing mode is not changed.
  *
  * @return {BlockEditingMode} The current editing mode.
  */
-export function useBlockEditingMode( mode, clientId ) {
-	const blockContextAll = useContext( BlockListBlockContext ) ?? {};
-	const { clientId: contextClientId = '' } = blockContextAll;
-
-	if ( ! clientId ) {
-		clientId = contextClientId;
-	}
-
+export function useBlockEditingMode( mode ) {
+	const { clientId = '' } = useContext( BlockListBlockContext ) ?? {};
 	const blockEditingMode = useSelect(
 		( select ) =>
 			unlock( select( blockEditorStore ) ).getBlockEditingMode(
@@ -73,6 +66,6 @@ export function useBlockEditingMode( mode, clientId ) {
 				unsetBlockEditingMode( clientId );
 			}
 		};
-	}, [ clientId, mode, setBlockEditingMode, unsetBlockEditingMode ] );
+	}, [ clientId, mode ] );
 	return blockEditingMode;
 }
