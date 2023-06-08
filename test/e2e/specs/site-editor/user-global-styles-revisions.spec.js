@@ -136,7 +136,7 @@ class UserGlobalStylesRevisions {
 
 	async openRevisions() {
 		await this.page
-			.getByRole( 'button', { name: 'Styles actions' } )
+			.getByRole( 'button', { name: 'Styles revisions actions' } )
 			.click();
 		await this.page.getByRole( 'menuitem', { name: 'Revisions' } ).click();
 	}
