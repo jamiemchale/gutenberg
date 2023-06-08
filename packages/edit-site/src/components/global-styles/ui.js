@@ -128,7 +128,7 @@ function GlobalStylesRevisionsMenu() {
 	}, [] );
 	const { useGlobalStylesReset } = unlock( blockEditorPrivateApis );
 	const [ canReset, onReset ] = useGlobalStylesReset();
-	const { goTo, location } = useNavigator();
+	const { goTo } = useNavigator();
 	const { setEditorCanvasContainerView } = unlock(
 		useDispatch( editSiteStore )
 	);
@@ -149,7 +149,6 @@ function GlobalStylesRevisionsMenu() {
 						{ hasRevisions && (
 							<MenuItem
 								onClick={ loadRevisions }
-								disabled={ location?.path === '/revisions' }
 								icon={
 									<RevisionsCountBadge>
 										{ revisionsCount }
