@@ -41,3 +41,15 @@ export const setEditorCanvasContainerView =
 			view,
 		} );
 	};
+
+/**
+ * Action that sets disabled state of global inserter.
+ *
+ * @param {?boolean} value disabled or not.
+ */
+export function setIsInserterDisabled( value ) {
+	return {
+		type: 'SET_IS_INSERTER_DISABLED',
+		value,
+	};
+}

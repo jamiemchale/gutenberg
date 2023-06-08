@@ -176,6 +176,16 @@ export function hasPageContentLock( state = false, action ) {
 	return state;
 }
 
+// reducer to handle SET_IS_INSERTER_DISABLED action
+export function blockInserterDisabled( state = false, action ) {
+	switch ( action.type ) {
+		case 'SET_IS_INSERTER_DISABLED':
+			return action.value;
+	}
+
+	return state;
+}
+
 export default combineReducers( {
 	deviceType,
 	settings,
@@ -186,4 +196,5 @@ export default combineReducers( {
 	canvasMode,
 	editorCanvasContainerView,
 	hasPageContentLock,
+	blockInserterDisabled,
 } );

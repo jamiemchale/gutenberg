@@ -64,6 +64,7 @@ export default function HeaderEditMode() {
 		homeUrl,
 		showIconLabels,
 		editorCanvasView,
+		isInserterDisabled,
 	} = useSelect( ( select ) => {
 		const {
 			__experimentalGetPreviewDeviceType,
@@ -81,6 +82,11 @@ export default function HeaderEditMode() {
 			getUnstableBase, // Site index.
 		} = select( coreStore );
 
+		const {
+			getEditorCanvasContainerView,
+			isInserterDisabled: _isInserterDisabled,
+		} = unlock( select( editSiteStore ) );
+
 		return {
 			deviceType: __experimentalGetPreviewDeviceType(),
 			templateType: postType,
@@ -96,9 +102,8 @@ export default function HeaderEditMode() {
 				'core/edit-site',
 				'showIconLabels'
 			),
-			editorCanvasView: unlock(
-				select( editSiteStore )
-			).getEditorCanvasContainerView(),
+			editorCanvasView: getEditorCanvasContainerView(),
+			isInserterDisabled: _isInserterDisabled(),
 		};
 	}, [] );
 
@@ -178,7 +183,7 @@ export default function HeaderEditMode() {
 							isPressed={ isInserterOpen }
 							onMouseDown={ preventDefault }
 							onClick={ toggleInserter }
-							disabled={ ! isVisualMode }
+							disabled={ ! isVisualMode || isInserterDisabled }
 							icon={ plus }
 							label={ showIconLabels ? shortLabel : longLabel }
 							showTooltip={ ! showIconLabels }

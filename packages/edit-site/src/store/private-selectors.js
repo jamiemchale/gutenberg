@@ -19,3 +19,13 @@ export function getCanvasMode( state ) {
 export function getEditorCanvasContainerView( state ) {
 	return state.editorCanvasContainerView;
 }
+
+/**
+ * Returns whether the global inserter is currently disabled.
+ *
+ * @param {Object} state Global application state.
+ * @return {boolean} Whether the inserter is disabled.
+ */
+export function isInserterDisabled( state ) {
+	return state.blockInserterDisabled;
+}
