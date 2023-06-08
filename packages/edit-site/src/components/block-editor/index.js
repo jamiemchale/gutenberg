@@ -174,12 +174,15 @@ export default function BlockEditor() {
 		! isMobileViewport;
 	const isViewMode = canvasMode === 'view';
 	const isEditMode = canvasMode === 'edit';
-	const showBlockAppender =
-		( isFocusMode && hasBlocks ) || isViewMode ? false : undefined;
 
 	const firstBlockClientId = blocks[ 0 ]?.clientId;
 
 	const isTemplateTypeNavigation = templateType === 'wp_navigation';
+
+	const showBlockAppender =
+		( isTemplateTypeNavigation && isFocusMode && hasBlocks ) || isViewMode
+			? false
+			: undefined;
 
 	useEffect( () => {
 		setBlockEditingMode(
