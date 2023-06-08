@@ -402,8 +402,8 @@ function GlobalStylesUI() {
 				<GlobalStylesStyleBook />
 			) }
 
-			<GlobalStylesActionMenu />
 			<GlobalStylesRevisionsMenu />
+			<GlobalStylesActionMenu />
 			<GlobalStylesBlockLink />
 			<GlobalStylesEditorCanvasContainerLink />
 		</NavigatorProvider>
