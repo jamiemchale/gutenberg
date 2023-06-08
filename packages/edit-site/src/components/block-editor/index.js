@@ -49,9 +49,7 @@ import {
 	usePageContentLockNotifications,
 } from '../page-content-lock';
 
-const { ExperimentalBlockEditorProvider, useBlockEditingMode } = unlock(
-	blockEditorPrivateApis
-);
+const { ExperimentalBlockEditorProvider } = unlock( blockEditorPrivateApis );
 
 const LAYOUT = {
 	type: 'default',
@@ -82,6 +80,10 @@ export default function BlockEditor() {
 			},
 			[ setIsInserterOpened ]
 		);
+
+	const { setBlockEditingMode, unsetBlockEditingMode } = unlock(
+		useDispatch( blockEditorStore )
+	);
 
 	const settingsBlockPatterns =
 		storedSettings.__experimentalAdditionalBlockPatterns ?? // WP 6.0
@@ -179,10 +181,20 @@ export default function BlockEditor() {
 
 	const isTemplateTypeNavigation = templateType === 'wp_navigation';
 
-	useBlockEditingMode(
-		isTemplateTypeNavigation ? 'contentOnly' : 'default',
-		firstBlockClientId
-	);
+	useEffect( () => {
+		setBlockEditingMode(
+			firstBlockClientId,
+			isTemplateTypeNavigation ? 'contentOnly' : 'default'
+		);
+		return () => {
+			unsetBlockEditingMode( firstBlockClientId );
+		};
+	}, [
+		firstBlockClientId,
+		isTemplateTypeNavigation,
+		unsetBlockEditingMode,
+		setBlockEditingMode,
+	] );
 
 	useEffect( () => {
 		if ( isEditMode && isTemplateTypeNavigation ) {
