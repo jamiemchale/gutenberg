@@ -60,7 +60,9 @@ const LAYOUT = {
 const FOCUSABLE_ENTITIES = [ 'wp_template_part', 'wp_navigation' ];
 
 export default function BlockEditor() {
-	const { setIsInserterOpened } = useDispatch( editSiteStore );
+	const { setIsInserterOpened, setIsInserterDisabled } = unlock(
+		useDispatch( editSiteStore )
+	);
 	const { storedSettings, templateType, canvasMode, hasPageContentLock } =
 		useSelect(
 			( select ) => {
@@ -80,6 +82,14 @@ export default function BlockEditor() {
 			},
 			[ setIsInserterOpened ]
 		);
+
+	const { selectedBlockClientId } = useSelect( ( select ) => {
+		const { getSelectedBlockClientId } = select( blockEditorStore );
+
+		return {
+			selectedBlockClientId: getSelectedBlockClientId(),
+		};
+	}, [] );
 
 	const { setBlockEditingMode, unsetBlockEditingMode } = unlock(
 		useDispatch( blockEditorStore )
@@ -208,6 +218,29 @@ export default function BlockEditor() {
 		isEditMode,
 		isTemplateTypeNavigation,
 		selectBlock,
+	] );
+
+	useEffect( () => {
+		// Disabled global inserter in Navigation focus mode
+		// when no block is selected to avoid ability to
+		// insert blocks outside of the Navigation block.
+		if ( ! isTemplateTypeNavigation ) {
+			return;
+		}
+
+		if ( !! selectedBlockClientId ) {
+			setIsInserterDisabled( false );
+		} else {
+			setIsInserterDisabled( true );
+		}
+
+		return () => {
+			setIsInserterDisabled( false );
+		};
+	}, [
+		selectedBlockClientId,
+		setIsInserterDisabled,
+		isTemplateTypeNavigation,
 	] );
 
 	return (
